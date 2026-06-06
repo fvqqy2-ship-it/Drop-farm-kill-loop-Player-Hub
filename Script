@@ -1,0 +1,285 @@
+-- Blue White Hub: By G0makis [☢️Nuke🔨] Build and Battle
+-- Version: 4.3 (Complete Home 3 Utility Update)
+-- Credits: Owner G0makis
+-- Target Game: [☢️Nuke🔨] Build and Battle
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
+-- Prevent interface duplication
+local existingHub = CoreGui:FindFirstChild("BlueWhiteHub")
+if existingHub then
+    existingHub:Destroy()
+end
+
+-- Base UI Setup
+local BlueWhiteHub = Instance.new("ScreenGui")
+BlueWhiteHub.Name = "BlueWhiteHub"
+BlueWhiteHub.Parent = CoreGui
+BlueWhiteHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = BlueWhiteHub
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.3, 0, 0.25, 0)
+MainFrame.Size = UDim2.new(0, 450, 0, 300)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+-- Rainbow Top Bar
+local TopBar = Instance.new("Frame")
+TopBar.Name = "TopBar"
+TopBar.Parent = MainFrame
+TopBar.Size = UDim2.new(1, 0, 0, 6)
+TopBar.BorderSizePixel = 0
+
+task.spawn(function()
+    while BlueWhiteHub.Parent do
+        for i = 0, 1, 0.005 do
+            TopBar.BackgroundColor3 = Color3.fromHSV(i, 1, 1)
+            task.wait(0.02)
+        end
+    end
+end)
+
+-- Sidebar Navigation Panel
+local Sidebar = Instance.new("Frame")
+Sidebar.Name = "Sidebar"
+Sidebar.Parent = MainFrame
+Sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 22)
+Sidebar.Size = UDim2.new(0, 130, 1, -6)
+Sidebar.Position = UDim2.new(0, 0, 0, 6)
+Sidebar.BorderSizePixel = 0
+
+local Title = Instance.new("TextLabel")
+Title.Name = "TitleLabel"
+Title.Parent = Sidebar
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.Text = "G0makis"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 18
+Title.BackgroundTransparency = 1
+
+-- Page Container Setup
+local Home1Page = Instance.new("ScrollingFrame")
+local Home2Page = Instance.new("ScrollingFrame")
+local Home3Page = Instance.new("ScrollingFrame")
+
+local function configurePage(page, name)
+    page.Name = name
+    page.Parent = MainFrame
+    page.Size = UDim2.new(1, -140, 1, -20)
+    page.Position = UDim2.new(0, 135, 0, 10)
+    page.BackgroundTransparency = 1
+    page.CanvasSize = UDim2.new(0, 0, 2.5, 0)
+    page.ScrollBarThickness = 4
+    page.Visible = false
+    
+    local layout = Instance.new("UIListLayout")
+    layout.Parent = page
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout.Padding = UDim.new(0, 10)
+end
+
+configurePage(Home1Page, "Home1Page")
+configurePage(Home2Page, "Home2Page")
+configurePage(Home3Page, "Home3Page")
+Home1Page.Visible = true
+
+-- Button Factory Helper
+local function createButton(text, parent, pos, size, bgCol, callback)
+    local btn = Instance.new("TextButton")
+    btn.Text = text
+    btn.Parent = parent
+    btn.Position = pos
+    btn.Size = size
+    btn.BackgroundColor3 = bgCol
+    btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn.Font = Enum.Font.SourceSansBold
+    btn.TextSize = 16
+    btn.BorderSizePixel = 0
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = btn
+    
+    btn.MouseButton1Down:Connect(function()
+        callback(btn)
+    end)
+    return btn
+end
+
+-- Tab Logic Connections
+createButton("Home 1: Farm", Sidebar, UDim2.new(0, 5, 0, 50), UDim2.new(1, -10, 0, 35), Color3.fromRGB(0, 120, 255), function()
+    Home1Page.Visible = true
+    Home2Page.Visible = false
+    Home3Page.Visible = false
+end)
+
+createButton("Home 2: Nuke", Sidebar, UDim2.new(0, 5, 0, 95), UDim2.new(1, -10, 0, 35), Color3.fromRGB(0, 120, 255), function()
+    Home1Page.Visible = false
+    Home2Page.Visible = true
+    Home3Page.Visible = false
+end)
+
+createButton("Home 3: Utility", Sidebar, UDim2.new(0, 5, 0, 140), UDim2.new(1, -10, 0, 35), Color3.fromRGB(0, 120, 255), function()
+    Home1Page.Visible = false
+    Home2Page.Visible = false
+    Home3Page.Visible = true
+end)
+
+local VersionLbl = Instance.new("TextLabel")
+VersionLbl.Parent = Sidebar
+VersionLbl.Size = UDim2.new(1, 0, 0, 20)
+VersionLbl.Position = UDim2.new(0, 0, 1, -25)
+VersionLbl.Text = "Build and Battle"
+VersionLbl.TextColor3 = Color3.fromRGB(150, 150, 150)
+VersionLbl.Font = Enum.Font.SourceSansItalic
+VersionLbl.TextSize = 12
+VersionLbl.BackgroundTransparency = 1
+
+
+-- ==========================================
+-- HOME 1: FARM & KILL
+-- ==========================================
+
+createButton("Get and Drop VIP", Home1Page, UDim2.new(0, 10, 0, 10), UDim2.new(0, 280, 0, 50), Color3.fromRGB(0, 100, 200), function()
+    local character = LocalPlayer.Character
+    if not character or not character:FindFirstChild("HumanoidRootPart") then return end
+    
+    local backpack = LocalPlayer.Backpack
+    local humanoidRootPart = character.HumanoidRootPart
+    local originalPosition = humanoidRootPart.CFrame
+
+    local locations = {
+        CFrame.new(-82, 17634, 9046),
+        CFrame.new(-95, 17634, 9046),
+        CFrame.new(-124, 17634, 9046)
+    }
+
+    for _, position in ipairs(locations) do
+        humanoidRootPart.CFrame = position
+        task.wait(0.5)
+    end
+
+    humanoidRootPart.CFrame = originalPosition
+    task.wait(0.3)
+
+    for _, tool in ipairs(character:GetChildren()) do
+        if tool:IsA("Tool") then
+            tool.Parent = backpack
+        end
+    end
+    task.wait(0.3)
+
+    local itemsToProcess = {"EpicKatana", "FreezeRay", "Fusion Coil"}
+    for _, toolName in ipairs(itemsToProcess) do
+        local tool = backpack:FindFirstChild(toolName)
+        if tool then
+            tool.Parent = character
+            task.wait(0.1)
+            tool.Parent = Workspace
+        end
+    end
+end)
+
+local killFarmActive = false
+createButton("Toggle Kill Farm Loop", Home1Page, UDim2.new(0, 10, 0, 75), UDim2.new(0, 280, 0, 40), Color3.fromRGB(180, 0, 0), function(btn)
+    killFarmActive = not killFarmActive
+    if killFarmActive then
+        btn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+        task.spawn(function()
+            while killFarmActive do
+                local myChar = LocalPlayer.Character
+                if myChar and myChar:FindFirstChild("HumanoidRootPart") then
+                    local weapon = myChar:FindFirstChildOfClass("Tool") or LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+                    if weapon and weapon.Parent == LocalPlayer.Backpack then
+                        weapon.Parent = myChar
+                    end
+
+                    for _, enemy in ipairs(Players:GetPlayers()) do
+                        if not killFarmActive then break end
+                        if enemy ~= LocalPlayer and enemy.Character and enemy.Character:FindFirstChild("HumanoidRootPart") and enemy.Character:FindFirstChild("Humanoid") then
+                            if enemy.Character.Humanoid.Health > 0 and myChar:FindFirstChild("HumanoidRootPart") then
+                                myChar.HumanoidRootPart.CFrame = enemy.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 3)
+                                if weapon then
+                                    task.defer(function()
+                                        weapon:Activate()
+                                    end)
+                               end
+                                task.wait(0.2)
+                            end
+                        end
+                    end
+                end
+                task.wait(0.5)
+            end
+        end)
+    else
+        btn.BackgroundColor3 = Color3.fromRGB(180, 0, 0)
+    end
+end)
+
+
+-- ==========================================
+-- HOME 2: FARM & GOD MODE [☢️Nuke🔨]
+-- ==========================================
+
+local godModeActive = false
+createButton("Toggle God Mode", Home2Page, UDim2.new(0, 10, 0, 10), UDim2.new(0, 280, 0, 45), Color3.fromRGB(80, 0, 120), function(btn)
+    godModeActive = not godModeActive
+    if godModeActive then
+        btn.BackgroundColor3 = Color3.fromRGB(0, 180, 0)
+        task.spawn(function()
+            while godModeActive do
+                local char = LocalPlayer.Character
+                if char and char:FindFirstChild("Humanoid") then
+                    char.Humanoid.MaxHealth = math.huge
+                    char.Humanoid.Health = math.huge
+                end
+                task.wait(0.5)
+            end
+        end)
+    else
+        btn.BackgroundColor3 = Color3.fromRGB(80, 0, 120)
+        local char = LocalPlayer.Character
+        if char and char:FindFirstChild("Humanoid") then
+            char.Humanoid.MaxHealth = 100
+            char.Humanoid.Health = 100
+        end
+    end
+end)
+
+createButton("☢️ Launch Nuke 🔨", Home2Page, UDim2.new(0, 10, 0, 70), UDim2.new(0, 280, 0, 55), Color3.fromRGB(230, 90, 0), function()
+    local structuralBlocks = Workspace:FindFirstChild("Builds") or Workspace:FindFirstChild("Map") or Workspace
+    for _, obj in ipairs(structuralBlocks:GetDescendants()) do
+        if obj:IsA("BasePart") and not obj:IsDescendantOf(Players) and obj.Anchored then
+            obj.Velocity = Vector3.new(math.random(-50,50), math.random(100,200), math.random(-50,50))
+            obj.RotVelocity = Vector3.new(math.random(-10,10), math.random(-10,10), math.random(-10,10))
+            obj.CanCollide = false
+        end
+    end
+    
+    local char = LocalPlayer.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local exp = Instance.new("Explosion")
+        exp.BlastRadius = 500
+        exp.BlastPressure = 500000
+        exp.Position = char.HumanoidRootPart.Position
+        exp.Parent = Workspace
+    end
+end)
+
+
+-- ==========================================
+-- HOME 3: UTILITY (COMPLETED)
+-- ==========================================
+
+local speedBoostActive = false
